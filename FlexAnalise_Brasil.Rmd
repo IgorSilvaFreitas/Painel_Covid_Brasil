@@ -1,0 +1,43 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+
+## Base completa pro brasil
+temp <- tempfile()
+
+download.file(url = "https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-states.csv",destfile = temp)
+
+Brasil <- read_csv(temp)
+
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
