@@ -149,8 +149,6 @@ aux_data = casosBrasil_final |>
 
 MM_casos = matrix(NA, dim(aux_nome)[1], nrow = length(aux_data$date))
 MM_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = length(aux_data$date))
-MM_vacina = matrix(NA, ncol=dim(aux_nome)[1], nrow = length(aux_data$date))
-MM_vacina2 = matrix(NA, ncol=dim(aux_nome)[1], nrow = length(aux_data$date))
 MM_ocup_Cli = matrix(NA, ncol=dim(aux_nome)[1], nrow = length(aux_data$date))
 MM_ocup_Uti = matrix(NA, ncol=dim(aux_nome)[1], nrow = length(aux_data$date))
 
@@ -168,10 +166,6 @@ for(i in aux_nome$state){
  
   MM_obitos[l:d,j] = movavg(base_aux$newDeaths, n = 7,type = "s")
  
-  MM_vacina[l:d,j] = movavg(base_aux$D1, n=7, type="s")
- 
-  MM_vacina2[l:d,j] = movavg(base_aux$D2, n=7, type="s")
- 
   MM_ocup_Cli[l:d,j] = movavg(base_aux$ocupacaoConfirmadoCli, n=7, type="s")
  
   MM_ocup_Uti[l:d,j] = movavg(base_aux$ocupacaoConfirmadoUti, n=7, type="s")
@@ -181,8 +175,6 @@ for(i in aux_nome$state){
 
 colnames(MM_casos) = aux_nome$state
 colnames(MM_obitos) = aux_nome$state
-colnames(MM_vacina) = aux_nome$state
-colnames(MM_vacina2) = aux_nome$state
 colnames(MM_ocup_Cli) = aux_nome$state
 colnames(MM_ocup_Uti) = aux_nome$state
 
@@ -195,16 +187,6 @@ MM_aux_geral_casos = gather(MM_aux_casos, key = "state", value = "MM_casos", -da
 MM_aux_obitos = as_tibble(MM_obitos)
 MM_aux_obitos$date = aux_data$date
 MM_aux_geral_obitos = gather(MM_aux_obitos, key = "state", value = "MM_obitos", -date)
-
-#Criando a base empilhada dos vacinados de 1 dose
-MM_aux_vacina <- as_tibble(MM_vacina)
-MM_aux_vacina$date <- aux_data$date
-MM_aux_geral_vacina <- gather(MM_aux_vacina, key = "state", value = "MM_vacina", -date)
-
-#Criando a base empilhada dos vacinados de 2 dose
-MM_aux_vacina2 <- as_tibble(MM_vacina2)
-MM_aux_vacina2$date <- aux_data$date
-MM_aux_geral_vacina2 <- gather(MM_aux_vacina2, key = "state", value = "MM_vacina2", -date)
 
 #Criando a base empilhada dos leitos clinicos ocupados
 MM_aux_ocup_Cli <- as_tibble(MM_ocup_Cli)
@@ -219,10 +201,6 @@ MM_aux_geral_ocup_Uti <- gather(MM_aux_ocup_Uti, key = "state", value = "MM_ocup
 casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_casos, by = c("date", "state"))
 
 casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_obitos, by = c("date", "state"))
-
-casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_vacina, by = c("date", "state"))
-
-casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_vacina2, by = c("date", "state"))
 
 casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_ocup_Cli, by = c("date", "state"))
 
