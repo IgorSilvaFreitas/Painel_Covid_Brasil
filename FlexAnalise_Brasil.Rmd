@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Panorama Brasil Covid-19"
 output: 
   flexdashboard::flex_dashboard:
     vertical_layout: fill
@@ -215,7 +215,7 @@ temp <- tempfile()
 
 data_sis <- format(Sys.Date()-7, "%d-%m-%Y")
 
-download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD-11-10-2021.csv",
+download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2020/INFLUD-18-10-2021.csv",
               destfile = temp)
 
 srag20 <- readr::read_csv2(temp)
@@ -238,7 +238,7 @@ temp <- tempfile()
 
 data_sis <- format(Sys.Date()-7, "%d-%m-%Y")
 
-download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2021/INFLUD21-11-10-2021.csv",
+download.file(url = "https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2021/INFLUD21-18-10-2021.csv",
               destfile = temp)
 
 srag21 <- readr::read_csv2(temp)
