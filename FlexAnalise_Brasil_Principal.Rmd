@@ -87,24 +87,24 @@ Brasil$date= as.Date.character(Brasil$date, tryFormats= "%Y-%m-%d")
 
 load("estado.rdata")
 
-#Brasil_Total = BaseFinalBrasil
-Brasil_Total = Brasil
+#casosBrasil_final = BaseFinalBrasil
+casosBrasil_final = Brasil
 
 
-#table(Brasil_Total$estados)
-#Brasil_Total <- Brasil_Total |> dplyr::filter(ibgeID!=33)
+#table(casosBrasil_final$estados)
+#casosBrasil_final <- casosBrasil_final |> dplyr::filter(ibgeID!=33)
 estados |> dplyr::rename(ibeID=populacao)
 estados$ibgeID <- as.numeric(estados$ibgeID)
-Brasil_Total <- left_join(Brasil_Total, estados, by="state")
+casosBrasil_final <- left_join(casosBrasil_final, estados, by="state")
 
-aux_semana <- Brasil_Total |> 
+aux_semana <- casosBrasil_final |> 
   dplyr::distinct(epi_week)
 
-aux_nome <- Brasil_Total |> 
+aux_nome <- casosBrasil_final |> 
   dplyr::distinct(state)
 
-Brasil_Total$date <- ymd(Brasil_Total$date)
-aux_data = Brasil_Total |> 
+casosBrasil_final$date <- ymd(casosBrasil_final$date)
+aux_data = casosBrasil_final |> 
   distinct(date)
 
 MM_casos = matrix(NA, dim(aux_nome)[1], nrow = length(aux_data$date))
@@ -117,7 +117,7 @@ MM_ocup_Uti = matrix(NA, ncol=dim(aux_nome)[1], nrow = length(aux_data$date))
 
 j = 1
 for(i in aux_nome$state){
-  base_aux = Brasil_Total  |>
+  base_aux = casosBrasil_final  |>
     filter(state == i) |> 
     arrange(date) |>
     distinct(state, date, .keep_all = T)
@@ -176,18 +176,18 @@ MM_aux_ocup_Uti <- as_tibble(MM_ocup_Uti)
 MM_aux_ocup_Uti$date <- aux_data$date
 MM_aux_geral_ocup_Uti <- gather(MM_aux_ocup_Uti, key = "state", value = "MM_ocup_Uti", -date)
 
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_casos, by = c("date", "state"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_casos, by = c("date", "state"))
 
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_obitos, by = c("date", "state"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_obitos, by = c("date", "state"))
 
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_vacina, by = c("date", "state"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_vacina, by = c("date", "state"))
 
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_vacina2, by = c("date", "state"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_vacina2, by = c("date", "state"))
 
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_ocup_Cli, by = c("date", "state"))
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_ocup_Uti, by = c("date", "state"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_ocup_Cli, by = c("date", "state"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_ocup_Uti, by = c("date", "state"))
 
-#save(Brasil_Total, file="Brasil_Total.rdata")
+#save(casosBrasil_final, file="casosBrasil_final.rdata")
 
 ###########################################################################################
 #SRAG20
@@ -242,46 +242,46 @@ image = image_fill(image_read("logo_get_uff_covid.png"),"none")
 raster = as.raster(image)
 doses = readPNG("doses.png")
 
-Brasil_UF = Brasil_Total |> 
+casosBrasil_final0 = casosBrasil_final |> 
   filter(state=="TOTAL")
 
-Brasil_UF$`D1 aplicadas` <- NA
-Brasil_UF$`D2 aplicadas`<- NA
-Brasil_UF$`DU aplicadas`<- NA
-Brasil_UF$`D3 aplicadas`<- NA
+casosBrasil_final0$`D1 aplicadas` <- NA
+casosBrasil_final0$`D2 aplicadas`<- NA
+casosBrasil_final0$`DU aplicadas`<- NA
+casosBrasil_final0$`D3 aplicadas`<- NA
 
-for (i in 1:length(Brasil_UF$date)) {
-  if(is.na(Brasil_UF$D1[i]=="True")){
-    Brasil_UF$D1[i]<-0
+for (i in 1:length(casosBrasil_final0$date)) {
+  if(is.na(casosBrasil_final0$D1[i]=="True")){
+    casosBrasil_final0$D1[i]<-0
   }
-  if(is.na(Brasil_UF$D2[i]=="True")){
-    Brasil_UF$D2[i]<-0
+  if(is.na(casosBrasil_final0$D2[i]=="True")){
+    casosBrasil_final0$D2[i]<-0
   }
-  if(is.na(Brasil_UF$DU[i]=="True")){
-    Brasil_UF$DU[i]<-0
+  if(is.na(casosBrasil_final0$DU[i]=="True")){
+    casosBrasil_final0$DU[i]<-0
   }
-  if(is.na(Brasil_UF$D3[i]=="True")){
-    Brasil_UF$D3[i]<-0
+  if(is.na(casosBrasil_final0$D3[i]=="True")){
+    casosBrasil_final0$D3[i]<-0
   }
 }
 
 
-for(i in 2:length(Brasil_UF$date)){
-  Brasil_UF$`D1 aplicadas`[i] <- Brasil_UF$D1[i]- Brasil_UF$D1[i-1]
-  Brasil_UF$`D2 aplicadas`[i] <- Brasil_UF$D2[i]- Brasil_UF$D2[i-1]
-  Brasil_UF$`DU aplicadas`[i] <- Brasil_UF$DU[i]- Brasil_UF$DU[i-1]
-  Brasil_UF$`D3 aplicadas`[i] <- Brasil_UF$D3[i]- Brasil_UF$D3[i-1]
+for(i in 2:length(casosBrasil_final0$date)){
+  casosBrasil_final0$`D1 aplicadas`[i] <- casosBrasil_final0$D1[i]- casosBrasil_final0$D1[i-1]
+  casosBrasil_final0$`D2 aplicadas`[i] <- casosBrasil_final0$D2[i]- casosBrasil_final0$D2[i-1]
+  casosBrasil_final0$`DU aplicadas`[i] <- casosBrasil_final0$DU[i]- casosBrasil_final0$DU[i-1]
+  casosBrasil_final0$`D3 aplicadas`[i] <- casosBrasil_final0$D3[i]- casosBrasil_final0$D3[i-1]
 }
 
-Brasil_UF$`D1 aplicadas`[1]= 0
-Brasil_UF$`D2 aplicadas`[1]= 0
-Brasil_UF$`DU aplicadas`[1]= 0
-Brasil_UF$`D3 aplicadas`[1]= 0
+casosBrasil_final0$`D1 aplicadas`[1]= 0
+casosBrasil_final0$`D2 aplicadas`[1]= 0
+casosBrasil_final0$`DU aplicadas`[1]= 0
+casosBrasil_final0$`D3 aplicadas`[1]= 0
 
 #Somando segunda dose + dose unica
-Brasil_UF$`D2 aplicadas` = Brasil_UF$`D2 aplicadas` + Brasil_UF$`DU aplicadas`
+casosBrasil_final0$`D2 aplicadas` = casosBrasil_final0$`D2 aplicadas` + casosBrasil_final0$`DU aplicadas`
 
-#base_vacina = Brasil_UF |> 
+#base_vacina = casosBrasil_final0 |> 
 #  group_by(date) |> 
 #  summarise(Vacinas= sum(`D1 aplicadas`,`D2 aplicadas`,`DU aplicadas`,`D3 aplicadas`, na.rm=T))
 
@@ -323,11 +323,11 @@ column {data-width=500, .tabset}
 ### Casos diários
   
 ```{r}
-Brasil_UF$`Média móvel` <- round(Brasil_UF$MM_casos,0)
-Brasil_UF$`Casos novos` <- Brasil_UF$newCases
-Brasil_UF$Data <- Brasil_UF$date
+casosBrasil_final0$`Média móvel` <- round(casosBrasil_final0$MM_casos,0)
+casosBrasil_final0$`Casos novos` <- casosBrasil_final0$newCases
+casosBrasil_final0$Data <- casosBrasil_final0$date
 
-g1 <- Brasil_UF |> ggplot(aes(x=Data, y=`Casos novos`))+ 
+g1 <- casosBrasil_final0 |> ggplot(aes(x=Data, y=`Casos novos`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`Média móvel`),
@@ -358,10 +358,10 @@ ggplotly(g1) |>
 ### Óbitos diários
 
 ```{r}
-Brasil_UF$`Média móvel` <- round(Brasil_UF$MM_obitos,0)
-Brasil_UF$`Óbitos novos` <- Brasil_UF$newDeaths
+casosBrasil_final0$`Média móvel` <- round(casosBrasil_final0$MM_obitos,0)
+casosBrasil_final0$`Óbitos novos` <- casosBrasil_final0$newDeaths
 
-g2 <- Brasil_UF |> ggplot(aes(x=Data, y=`Óbitos novos`))+ 
+g2 <- casosBrasil_final0 |> ggplot(aes(x=Data, y=`Óbitos novos`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`Média móvel`),
@@ -392,10 +392,10 @@ ggplotly(g2) |>
 ### Ocupação diária de leitos clínicos
   
 ```{r}
-Brasil_UF$`Leitos clínicos ocupados` <- Brasil_UF$ocupacaoConfirmadoCli
-Brasil_UF$`média móvel` <- Brasil_UF$MM_ocup_Cli
+casosBrasil_final0$`Leitos clínicos ocupados` <- casosBrasil_final0$ocupacaoConfirmadoCli
+casosBrasil_final0$`média móvel` <- casosBrasil_final0$MM_ocup_Cli
 
-g7 <- Brasil_UF |> ggplot(aes(x=Data, y=`Leitos clínicos ocupados`))+ 
+g7 <- casosBrasil_final0 |> ggplot(aes(x=Data, y=`Leitos clínicos ocupados`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`média móvel`),
@@ -426,10 +426,10 @@ ggplotly(g7) |>
 ### Ocupação diária de leitos de UTI
   
 ```{r}
-Brasil_UF$`Leitos UTI ocupados` <- Brasil_UF$ocupacaoConfirmadoUti
-Brasil_UF$`média móvel` <- Brasil_UF$MM_ocup_Uti
+casosBrasil_final0$`Leitos UTI ocupados` <- casosBrasil_final0$ocupacaoConfirmadoUti
+casosBrasil_final0$`média móvel` <- casosBrasil_final0$MM_ocup_Uti
 
-g8 <- Brasil_UF |> ggplot(aes(x=Data, y=`Leitos UTI ocupados`))+
+g8 <- casosBrasil_final0 |> ggplot(aes(x=Data, y=`Leitos UTI ocupados`))+
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`média móvel`),
@@ -463,10 +463,10 @@ column {data-width=500, .tabset}
 ### Vacinação diária
 
 ```{r}
-Brasil_UF$`Primeira dose` <- Brasil_UF$`D1 aplicadas`
-Brasil_UF$`Segunda dose ou dose única` <- Brasil_UF$`D2 aplicadas`
+casosBrasil_final0$`Primeira dose` <- casosBrasil_final0$`D1 aplicadas`
+casosBrasil_final0$`Segunda dose ou dose única` <- casosBrasil_final0$`D2 aplicadas`
 
-g3 <- Brasil_UF |> 
+g3 <- casosBrasil_final0 |> 
   filter(date>="2021-01-17") |> 
   ggplot(aes(x=Data, y=`Primeira dose`))+ 
   geom_bar(stat="identity",
@@ -508,9 +508,9 @@ ggplotly(g3) |>
 ### Vacinação diária da 1ª dose
 
 ```{r}
-Brasil_UF$`Vacinas aplicadas` <- Brasil_UF$`D1 aplicadas`
+casosBrasil_final0$`Vacinas aplicadas` <- casosBrasil_final0$`D1 aplicadas`
 
-g4 <- Brasil_UF |> 
+g4 <- casosBrasil_final0 |> 
   filter(date>="2021-01-17") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -542,9 +542,9 @@ ggplotly(g4) |>
 ### Vacinação diária da 2ª dose ou Dose Única
 
 ```{r}
-Brasil_UF$`Vacinas aplicadas` <- Brasil_UF$`D2 aplicadas`
+casosBrasil_final0$`Vacinas aplicadas` <- casosBrasil_final0$`D2 aplicadas`
 
-g5 <- Brasil_UF |>   
+g5 <- casosBrasil_final0 |>   
   filter(date>="2021-01-17") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -576,9 +576,9 @@ ggplotly(g5) |>
 ### Vacinação diária da 3ª dose
 
 ```{r}
-Brasil_UF$`Vacinas aplicadas` <- Brasil_UF$`D3 aplicadas`
+casosBrasil_final0$`Vacinas aplicadas` <- casosBrasil_final0$`D3 aplicadas`
 
-g20 <- Brasil_UF |>   
+g20 <- casosBrasil_final0 |>   
   filter(date>="2021-01-17") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -717,34 +717,34 @@ column {data-width=200}
 
 #pop dos Estados do Brasil 2021 (na coluna Valor)
 #pop_brasil = get_sidra(api="/t/6579/n1/all/v/all/p/last%201")
-#Brasil_UF$populacao= 213317639
+#casosBrasil_final0$populacao= 213317639
 
 
 #Acumulado das vacinas aplicadas
-Brasil_UF= Brasil_UF |> 
+casosBrasil_final0= casosBrasil_final0 |> 
   filter(date>= "2021-01-01")
-Brasil_UF$`D1 aplicadas`= as.character(Brasil_UF$`D1 aplicadas`)
-for (i in 1:length(Brasil_UF$`D1 aplicadas`)){
-  if(is.na(Brasil_UF$`D1 aplicadas`[i]==T)) Brasil_UF$`D1 aplicadas`[i]="Nao informado"
+casosBrasil_final0$`D1 aplicadas`= as.character(casosBrasil_final0$`D1 aplicadas`)
+for (i in 1:length(casosBrasil_final0$`D1 aplicadas`)){
+  if(is.na(casosBrasil_final0$`D1 aplicadas`[i]==T)) casosBrasil_final0$`D1 aplicadas`[i]="Nao informado"
 }
-Brasil_UF= dplyr::filter(Brasil_UF, D1!="Nao informado")
-Brasil_UF$`D1 aplicadas`= as.numeric(Brasil_UF$`D1 aplicadas`)
+casosBrasil_final0= dplyr::filter(casosBrasil_final0, D1!="Nao informado")
+casosBrasil_final0$`D1 aplicadas`= as.numeric(casosBrasil_final0$`D1 aplicadas`)
 
-Brasil_UF$D1_AC= cumsum(Brasil_UF$`D1 aplicadas`)
-Brasil_UF$D2_AC= cumsum(Brasil_UF$`D2 aplicadas`)
-Brasil_UF$D3_AC= cumsum(Brasil_UF$`D3 aplicadas`)
+casosBrasil_final0$D1_AC= cumsum(casosBrasil_final0$`D1 aplicadas`)
+casosBrasil_final0$D2_AC= cumsum(casosBrasil_final0$`D2 aplicadas`)
+casosBrasil_final0$D3_AC= cumsum(casosBrasil_final0$`D3 aplicadas`)
 
-Brasil_UF$D2_AC= as.character(Brasil_UF$D2_AC)
-for (i in 1:length(Brasil_UF$D2_AC)){
-  if((Brasil_UF$date[i]<"2021-01-17")) Brasil_UF$D2_AC[i]=NA
+casosBrasil_final0$D2_AC= as.character(casosBrasil_final0$D2_AC)
+for (i in 1:length(casosBrasil_final0$D2_AC)){
+  if((casosBrasil_final0$date[i]<"2021-01-17")) casosBrasil_final0$D2_AC[i]=NA
 }
-Brasil_UF$D2_AC= as.numeric(Brasil_UF$D2_AC)
+casosBrasil_final0$D2_AC= as.numeric(casosBrasil_final0$D2_AC)
 
-Brasil_UF$D3_AC= as.character(Brasil_UF$D3_AC)
-for (i in 1:length(Brasil_UF$D3_AC)){
-  if((Brasil_UF$date[i]<"2021-08-03")) Brasil_UF$D3_AC[i]=NA
+casosBrasil_final0$D3_AC= as.character(casosBrasil_final0$D3_AC)
+for (i in 1:length(casosBrasil_final0$D3_AC)){
+  if((casosBrasil_final0$date[i]<"2021-08-03")) casosBrasil_final0$D3_AC[i]=NA
 }
-Brasil_UF$D3_AC= as.numeric(Brasil_UF$D3_AC)
+casosBrasil_final0$D3_AC= as.numeric(casosBrasil_final0$D3_AC)
 
 
 #Brasil_map <- get_brmap(geo = "state",
@@ -752,7 +752,7 @@ Brasil_UF$D3_AC= as.numeric(Brasil_UF$D3_AC)
 #                    class = "sf")
 #Brasil_map = filter(Brasil_map, nome=="Brasil")
 
-#BaseBrasil_aux = Brasil_UF
+#BaseBrasil_aux = casosBrasil_final0
 #BaseBrasil_aux$state = sub(pattern = "/Brasil", replacement = "", x = BaseBrasil_aux$state)
 #BaseBrasil_aux$state = str_to_upper(BaseBrasil_aux$state)
 #aux_inconsistencia = str_to_upper(aux_inconsistencia)
@@ -761,7 +761,7 @@ Brasil_UF$D3_AC= as.numeric(Brasil_UF$D3_AC)
 
 
 # Criando AS TAXAS
-Brasil = Brasil_UF
+Brasil = casosBrasil_final0
 Brasil = Brasil |> 
   filter(date== max(date)) |> 
   mutate(taxaD1= round(D1_AC/populacao, 2),
@@ -802,11 +802,11 @@ column {data-width=800}
 ### Vacinação acumulada por tipo de dose
 
 ```{r }
-Brasil_UF$`Aplicações primeira dose` <- Brasil_UF$D1_AC
-Brasil_UF$`Aplicações segunda dose ou dose única` <- Brasil_UF$D2_AC
-Brasil_UF$`Aplicações terceira dose` <- Brasil_UF$D3_AC
+casosBrasil_final0$`Aplicações primeira dose` <- casosBrasil_final0$D1_AC
+casosBrasil_final0$`Aplicações segunda dose ou dose única` <- casosBrasil_final0$D2_AC
+casosBrasil_final0$`Aplicações terceira dose` <- casosBrasil_final0$D3_AC
 
-g6 <- Brasil_UF |> 
+g6 <- casosBrasil_final0 |> 
   ggplot(aes(x=Data, y=`Aplicações primeira dose`, fill = "Primeira dose"))+ 
   geom_line(col= "red")+
   geom_line(aes(y= `Aplicações segunda dose ou dose única`, fill = "Segunda dose ou dose única"),
@@ -841,30 +841,30 @@ ggplotly(g6) |>
 
 
 ```{r}
-#load("Brasil_Total.rdata")
+#load("casosBrasil_final.rdata")
 #load("srag20.rdata")
 #load("srag21.rdata")
 
 
-#Brasil_Total = BaseFinalBrasil
-#Brasil_Total = dados
+#casosBrasil_final = BaseFinalBrasil
+#casosBrasil_final = dados
 #rm(BaseFinalBrasil)
 #rm(dados)
-#Brasil_Total$Populacao = as.numeric(as.character(Brasil_Total$Populacao))
+#casosBrasil_final$Populacao = as.numeric(as.character(casosBrasil_final$Populacao))
 
-#Brasil_Total = Brasil_Total |> 
+#casosBrasil_final = casosBrasil_final |> 
 #  mutate(tx_casos_mil_diaria = round(CasosNovos / Populacao * 100000, 2),
 #         tx_casos_mil = round(CasosAcumulados / Populacao * 100000, 2),
 #         tx_mort_mil_diaria = round(ObitosNovos / Populacao * 100000, 2),
 #         tx_mort_mil = round(ObitosAcumulados / Populacao * 100000, 2),
 #         letalidade = round(ObitosAcumulados / CasosAcumulados * 100, 2))
 
-#table(Brasil_Total$Estados)
-Brasil_Total <- Brasil_Total |> filter(state!="TOTAL")
+#table(casosBrasil_final$Estados)
+casosBrasil_final <- casosBrasil_final |> filter(state!="TOTAL")
 estados$ibgeID <- as.numeric(estados$ibgeID)
-#Brasil_Total <- left_join(Brasil_Total, Estados, by="ibgeID")
+#casosBrasil_final <- left_join(casosBrasil_final, Estados, by="ibgeID")
 
-Brasil_Total <- Brasil_Total |> 
+casosBrasil_final <- casosBrasil_final |> 
   rename(Estados=state,
          Data=date,
          CasosNovos=newCases,
@@ -875,7 +875,7 @@ Brasil_Total <- Brasil_Total |>
          tx_casos_mil=totalCases_per_100k_inhabitants,
          Populacao=populacao)
 
-Brasil_Total <- Brasil_Total |> 
+casosBrasil_final <- casosBrasil_final |> 
   mutate(letalidade=round(deaths_by_totalCases * 100,2),
          tx_mort_mil_diaria= round(ObitosNovos / Populacao * 100000, 2),
          tx_casos_mil_diaria= round(CasosNovos / Populacao * 100000, 2),
@@ -884,29 +884,29 @@ Brasil_Total <- Brasil_Total |>
          tx_D3_mil = round(D3 / Populacao * 100000, 2),
          tx_DU_mil = round(DU / Populacao * 100000, 2))
 
-aux_nome = Brasil_Total |> 
+aux_nome = casosBrasil_final |> 
   distinct(Estados)
 
-Brasil_Total$Data <- ymd(Brasil_Total$Data)
-aux_data = Brasil_Total |> 
+casosBrasil_final$Data <- ymd(casosBrasil_final$Data)
+aux_data = casosBrasil_final |> 
   distinct(Data)
 
-MM_casos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-MM_casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-MM_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-MM_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-MM_tx_casos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-MM_tx_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-tx_casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-tx_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-#prop_CasosNovos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-#prop_ObitosNovos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
-#total_casos_periodo1 = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Total$Estados)))
+MM_casos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+MM_casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+MM_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+MM_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+MM_tx_casos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+MM_tx_obitos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+tx_casos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+tx_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+#prop_CasosNovos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+#prop_ObitosNovos = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
+#total_casos_periodo1 = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(casosBrasil_final$Estados)))
 
 #Periodo1 = os 7 dias mais recentes
-#periodo1 = c(max(Brasil_Total$Data, na.rm = T),max(Brasil_Total$Data, na.rm = T) - 6) 
+#periodo1 = c(max(casosBrasil_final$Data, na.rm = T),max(casosBrasil_final$Data, na.rm = T) - 6) 
 #periodo1_br = paste(day(periodo1),"/",month(periodo1),"/",year(periodo1),sep="")
 #Periodo2 = os 7 dias anteriores aos dias da periodo 1
 #periodo2 = c(periodo1[2]-1,periodo1[2] - 7)
@@ -915,7 +915,7 @@ tx_obitos_max = matrix(NA, ncol = dim(aux_nome)[1], nrow = max(table(Brasil_Tota
 aux_inconsistencia = c()
 j = 1
 for(i in aux_nome$Estados){
-  base_aux = Brasil_Total  |>
+  base_aux = casosBrasil_final  |>
     filter(Estados == i) |> 
     arrange(Data) |>
     distinct(Estados, Data, .keep_all = T)
@@ -925,7 +925,7 @@ for(i in aux_nome$Estados){
   
   #Casos
   MM_casos[l:d,j] = movavg(base_aux$CasosNovos, n = 7,type = "s")
-  MM_casos_max[,j]=rep(max(MM_casos[,j],na.rm = TRUE),max(table(Brasil_Total$Estados)))
+  MM_casos_max[,j]=rep(max(MM_casos[,j],na.rm = TRUE),max(table(casosBrasil_final$Estados)))
   
   if(MM_casos[t,j] < 0 | MM_casos[t - 14,j] < 0){
     aux_inconsistencia[j] = i
@@ -936,11 +936,11 @@ for(i in aux_nome$Estados){
   MM_tx_casos[l:d,j] = movavg(base_aux$tx_casos_mil_diaria, n = 7,type = "s")
   
   #Maximo dos casos
-  casos_max[,j] = rep(max(base_aux$CasosAcumulados), max(table(Brasil_Total$Estados)))
+  casos_max[,j] = rep(max(base_aux$CasosAcumulados), max(table(casosBrasil_final$Estados)))
   
   #Maximo das taxas de casos
   tx_casos_max[,j] = rep(max(base_aux$tx_casos_mil_diaria,na.rm = T),
-                         max(table(Brasil_Total$Estados)))
+                         max(table(casosBrasil_final$Estados)))
   
   #crescimento/decrescimetno do numero de casos novos
   # casosNovos1 = base_aux |> 
@@ -955,9 +955,9 @@ for(i in aux_nome$Estados){
   
   #prop_casos = (casosNovos1 - casosNovos2) / casosNovos2 * 100
   
-  #prop_CasosNovos[,j] = rep(round(prop_casos,2), max(table(Brasil_Total$Estados)))
+  #prop_CasosNovos[,j] = rep(round(prop_casos,2), max(table(casosBrasil_final$Estados)))
   
-  #total_casos_periodo1[,j] = rep(casosNovos1,  max(table(Brasil_Total$Estados)))
+  #total_casos_periodo1[,j] = rep(casosNovos1,  max(table(casosBrasil_final$Estados)))
   
   #if(casosNovos2 < 0 | casosNovos1 < 0)
   # aux_inconsistencia[j] = i
@@ -965,18 +965,18 @@ for(i in aux_nome$Estados){
   #Obitos
   MM_obitos[l:d,j] = movavg(base_aux$ObitosNovos, n = 7,type = "s")
   MM_obitos_max[,j] = rep(max(MM_obitos[,j], na.rm = T),
-                          max(table(Brasil_Total$Estados)))
+                          max(table(casosBrasil_final$Estados)))
   
   
   #taxa Obitos
   MM_tx_obitos[l:d,j] = movavg(base_aux$tx_mort_mil_diaria, n = 7,type = "s")
   
   #Maximo dos obitos
-  obitos_max[,j] = rep(max(base_aux$ObitosAcumulados), max(table(Brasil_Total$Estados)))
+  obitos_max[,j] = rep(max(base_aux$ObitosAcumulados), max(table(casosBrasil_final$Estados)))
   
   #maximo da taxa dos obitos
   tx_obitos_max[,j] = rep(max(base_aux$tx_mort_mil_diaria, na.rm = T),
-                          max(table(Brasil_Total$Estados)))
+                          max(table(casosBrasil_final$Estados)))
   
   #crescimento/decrescimetno do numero de obitos novos
   #obitosNovos1 = base_aux |> 
@@ -990,7 +990,7 @@ for(i in aux_nome$Estados){
   #sum(na.rm = T)
   
   #prop_obitos = (obitosNovos1 - obitosNovos2) / obitosNovos2 * 100
-  #prop_ObitosNovos[,j] = rep(round(prop_obitos,2), max(table(Brasil_Total$Estados)))
+  #prop_ObitosNovos[,j] = rep(round(prop_obitos,2), max(table(casosBrasil_final$Estados)))
   
   
   j = j + 1
@@ -1078,32 +1078,32 @@ tx_obitos_aux_geral_max = gather(tx_obitos_aux_max, key = "Estados", value = "tx
 #prop_aux_obitosNovos$Data = aux_data$Data
 #prop_aux_geral_obitosNovos = gather(prop_aux_obitosNovos, key = "Estados", value = "Prop_ObitosNovos", -Data)
 
-#Adicionando as bases à base Brasil_Total
+#Adicionando as bases à base casosBrasil_final
 
 #Casos maximos e taxa maxima de casos
-Brasil_Total = left_join(Brasil_Total, casos_aux_geral_max, by = c("Data", "Estados"))
-Brasil_Total = left_join(Brasil_Total, tx_casos_aux_geral_max, by = c("Data", "Estados"))
+casosBrasil_final = left_join(casosBrasil_final, casos_aux_geral_max, by = c("Data", "Estados"))
+casosBrasil_final = left_join(casosBrasil_final, tx_casos_aux_geral_max, by = c("Data", "Estados"))
 
 # Media movel dos casos e media movel ponderada
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_casos, by = c("Data", "Estados", "MM_casos"))
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_casos_max, by = c("Data", "Estados"))
-Brasil_Total$MM_casos_pond = Brasil_Total$MM_casos / Brasil_Total$MM_casos_max
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_casos, by = c("Data", "Estados", "MM_casos"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_casos_max, by = c("Data", "Estados"))
+casosBrasil_final$MM_casos_pond = casosBrasil_final$MM_casos / casosBrasil_final$MM_casos_max
 
 #Media Movel das taxas de casos 
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_tx_casos, by = c("Data", "Estados"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_tx_casos, by = c("Data", "Estados"))
 
 
 #obitos maximos e taxa maxima de obitos
-Brasil_Total = left_join(Brasil_Total,obitos_aux_geral_max, by = c("Data", "Estados"))
-Brasil_Total = left_join(Brasil_Total,tx_obitos_aux_geral_max, by = c("Data", "Estados"))
+casosBrasil_final = left_join(casosBrasil_final,obitos_aux_geral_max, by = c("Data", "Estados"))
+casosBrasil_final = left_join(casosBrasil_final,tx_obitos_aux_geral_max, by = c("Data", "Estados"))
 
 # Media movel dos obitos e media movel ponderada
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_obitos, by = c("Data", "Estados", "MM_obitos"))
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_obitos_max, by = c("Data", "Estados"))
-Brasil_Total$MM_obitos_pond = Brasil_Total$MM_obitos / Brasil_Total$MM_obitos_max
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_obitos, by = c("Data", "Estados", "MM_obitos"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_obitos_max, by = c("Data", "Estados"))
+casosBrasil_final$MM_obitos_pond = casosBrasil_final$MM_obitos / casosBrasil_final$MM_obitos_max
 
 #Media Movel das taxas de obitos 
-Brasil_Total = left_join(Brasil_Total,MM_aux_geral_tx_obitos, by = c("Data", "Estados"))
+casosBrasil_final = left_join(casosBrasil_final,MM_aux_geral_tx_obitos, by = c("Data", "Estados"))
 
 #MM_tx = left_join(MM_aux_geral_tx_casos,MM_aux_geral_tx_obitos, by = c("Data", "Estados"))
 #MM_tx_max = left_join(tx_casos_aux_geral_max,tx_obitos_aux_geral_max, by = c("Data", "Estados"))
@@ -1112,46 +1112,46 @@ Brasil_Total = left_join(Brasil_Total,MM_aux_geral_tx_obitos, by = c("Data", "Es
 #MM_final1 = left_join(MM_final, casos_aux_geral_max, by = c("Data","Estados"))
 #MM_final2 = left_join(MM_final1, obitos_aux_geral_max, by = c("Data","Estados"))
 #MM_final3 = left_join(MM_final2, MM_tx_final,by = c("Data","Estados"))
-#Brasil_Total = left_join(Brasil_Total, MM_final3, by = c("Data","Estados"))
-#Brasil_Total = left_join(Brasil_Total, prop_aux_geral_casosNovos, by = c("Data", "Estados"))
-#Brasil_Total = left_join(Brasil_Total, total_aux_geral_casos_periodo1, by = c("Data", "Estados"))
-#Brasil_Total = left_join(Brasil_Total, prop_aux_geral_obitosNovos, by = c("Data", "Estados"))
+#casosBrasil_final = left_join(casosBrasil_final, MM_final3, by = c("Data","Estados"))
+#casosBrasil_final = left_join(casosBrasil_final, prop_aux_geral_casosNovos, by = c("Data", "Estados"))
+#casosBrasil_final = left_join(casosBrasil_final, total_aux_geral_casos_periodo1, by = c("Data", "Estados"))
+#casosBrasil_final = left_join(casosBrasil_final, prop_aux_geral_obitosNovos, by = c("Data", "Estados"))
 
 
  
 
 #Calculando a data do N-ésimo caso por estado
 N_dias_casos = 1
-primeiro_caso_Brasil = Brasil_Total |> 
+primeiro_caso_Brasil = casosBrasil_final |> 
   filter(CasosAcumulados >= N_dias_casos) |>
   group_by(Estados) |> 
   summarise(primeiro_dia_caso = min(Data))
 
 #Calculando a data do N-ésimo obito por estado
 N_dias_obitos = 1
-primeiro_obito_Brasil = Brasil_Total |>
+primeiro_obito_Brasil = casosBrasil_final |>
   filter(ObitosAcumulados >= N_dias_obitos) |> 
   group_by(Estados) |> 
   summarise(primeiro_dia_obito = min(Data))
 
 #Acrescentando a data do primeiro caso por Brasil na base
-Brasil_Total = left_join(Brasil_Total, primeiro_caso_Brasil, by = "Estados")
+casosBrasil_final = left_join(casosBrasil_final, primeiro_caso_Brasil, by = "Estados")
 
 #Acrescentando a data do primeiro obito por Brasil na base
-Brasil_Total = left_join(Brasil_Total, primeiro_obito_Brasil, by = "Estados")
+casosBrasil_final = left_join(casosBrasil_final, primeiro_obito_Brasil, by = "Estados")
 
 #Calcluando o numero de dias desde o N-ésimo caso e N-ésimo obito para cada data notificada por Brasil
-Brasil_Total = Brasil_Total |> 
+casosBrasil_final = casosBrasil_final |> 
   mutate(num_dias_caso = time_length(Data-primeiro_dia_caso, "day")+1,
          num_dias_obito = time_length(Data-primeiro_dia_obito, "day")+1)
 
-Brasil_Total$num_dias_caso[Brasil_Total$num_dias_caso <= 0] = NA
-Brasil_Total$num_dias_obito[Brasil_Total$num_dias_obito <= 0] = NA
+casosBrasil_final$num_dias_caso[casosBrasil_final$num_dias_caso <= 0] = NA
+casosBrasil_final$num_dias_obito[casosBrasil_final$num_dias_obito <= 0] = NA
 
 #Calculando letalidade e taxa por 100000 habitantes
 
 #Ultima data de coleta de dados
-data_hoje = paste(day(max(Brasil_Total$Data)),"/",month(max(Brasil_Total$Data)),"/",year(max(Brasil_Total$Data)),sep = "")
+data_hoje = paste(day(max(casosBrasil_final$Data)),"/",month(max(casosBrasil_final$Data)),"/",year(max(casosBrasil_final$Data)),sep = "")
 
 #Número de estados
 num_estados = 10
@@ -1169,10 +1169,10 @@ column {data-width=500, .tabset}
   
 ```{r fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.width = 12}
 #Criando a base de totais do ultimo dia divulgado por estado
-base_atual_todos = Brasil_Total |>
+base_atual_todos = casosBrasil_final |>
   filter(Data == max(Data))
 
-#base_atual = Brasil_Total |>
+#base_atual = casosBrasil_final |>
 #  filter(Data == max(Data)) |> 
 #  top_n(CasosAcumulados, n = num_cidades)
 
@@ -1358,8 +1358,8 @@ g5
 
 
 ```{r fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10}
-#load("Brasil_Total2.rdata")
-Brasil_Total2= Brasil_Total |>
+#load("casosBrasil_final2.rdata")
+casosBrasil_final2= casosBrasil_final |>
   mutate(D2 = D2+ DU) |> 
   select(Data, Estados, D1, D2, D3) 
 
@@ -1386,7 +1386,7 @@ bra2_map$Estados= factor(bra2_map$nome, levels= c("Rondônia", "Acre", "Amazonas
 
 bra2_map$Estados= as.character(bra2_map$Estados)
 
-BaseBrasil_aux = Brasil_Total2
+BaseBrasil_aux = casosBrasil_final2
 #BaseBrasil_aux$Estados = str_to_upper(BaseBrasil_aux$Estados)
 #aux_inconsistencia = str_to_upper(aux_inconsistencia)
 bra2 = left_join(bra2_map, BaseBrasil_aux, by = c("Estados"))
