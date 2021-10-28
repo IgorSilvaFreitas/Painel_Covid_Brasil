@@ -242,46 +242,46 @@ image = image_fill(image_read("logo_get_uff_covid.png"),"none")
 raster = as.raster(image)
 doses = readPNG("doses.png")
 
-casosBrasil_final0 = casosBrasil_final |> 
+Brasil_Total = casosBrasil_final |> 
   filter(state=="TOTAL")
 
-casosBrasil_final0$`D1 aplicadas` <- NA
-casosBrasil_final0$`D2 aplicadas`<- NA
-casosBrasil_final0$`DU aplicadas`<- NA
-casosBrasil_final0$`D3 aplicadas`<- NA
+Brasil_Total$`D1 aplicadas` <- NA
+Brasil_Total$`D2 aplicadas`<- NA
+Brasil_Total$`DU aplicadas`<- NA
+Brasil_Total$`D3 aplicadas`<- NA
 
-for (i in 1:length(casosBrasil_final0$date)) {
-  if(is.na(casosBrasil_final0$D1[i]=="True")){
-    casosBrasil_final0$D1[i]<-0
+for (i in 1:length(Brasil_Total$date)) {
+  if(is.na(Brasil_Total$D1[i]=="True")){
+    Brasil_Total$D1[i]<-0
   }
-  if(is.na(casosBrasil_final0$D2[i]=="True")){
-    casosBrasil_final0$D2[i]<-0
+  if(is.na(Brasil_Total$D2[i]=="True")){
+    Brasil_Total$D2[i]<-0
   }
-  if(is.na(casosBrasil_final0$DU[i]=="True")){
-    casosBrasil_final0$DU[i]<-0
+  if(is.na(Brasil_Total$DU[i]=="True")){
+    Brasil_Total$DU[i]<-0
   }
-  if(is.na(casosBrasil_final0$D3[i]=="True")){
-    casosBrasil_final0$D3[i]<-0
+  if(is.na(Brasil_Total$D3[i]=="True")){
+    Brasil_Total$D3[i]<-0
   }
 }
 
 
-for(i in 2:length(casosBrasil_final0$date)){
-  casosBrasil_final0$`D1 aplicadas`[i] <- casosBrasil_final0$D1[i]- casosBrasil_final0$D1[i-1]
-  casosBrasil_final0$`D2 aplicadas`[i] <- casosBrasil_final0$D2[i]- casosBrasil_final0$D2[i-1]
-  casosBrasil_final0$`DU aplicadas`[i] <- casosBrasil_final0$DU[i]- casosBrasil_final0$DU[i-1]
-  casosBrasil_final0$`D3 aplicadas`[i] <- casosBrasil_final0$D3[i]- casosBrasil_final0$D3[i-1]
+for(i in 2:length(Brasil_Total$date)){
+  Brasil_Total$`D1 aplicadas`[i] <- Brasil_Total$D1[i]- Brasil_Total$D1[i-1]
+  Brasil_Total$`D2 aplicadas`[i] <- Brasil_Total$D2[i]- Brasil_Total$D2[i-1]
+  Brasil_Total$`DU aplicadas`[i] <- Brasil_Total$DU[i]- Brasil_Total$DU[i-1]
+  Brasil_Total$`D3 aplicadas`[i] <- Brasil_Total$D3[i]- Brasil_Total$D3[i-1]
 }
 
-casosBrasil_final0$`D1 aplicadas`[1]= 0
-casosBrasil_final0$`D2 aplicadas`[1]= 0
-casosBrasil_final0$`DU aplicadas`[1]= 0
-casosBrasil_final0$`D3 aplicadas`[1]= 0
+Brasil_Total$`D1 aplicadas`[1]= 0
+Brasil_Total$`D2 aplicadas`[1]= 0
+Brasil_Total$`DU aplicadas`[1]= 0
+Brasil_Total$`D3 aplicadas`[1]= 0
 
 #Somando segunda dose + dose unica
-casosBrasil_final0$`D2 aplicadas` = casosBrasil_final0$`D2 aplicadas` + casosBrasil_final0$`DU aplicadas`
+Brasil_Total$`D2 aplicadas` = Brasil_Total$`D2 aplicadas` + Brasil_Total$`DU aplicadas`
 
-#base_vacina = casosBrasil_final0 |> 
+#base_vacina = Brasil_Total |> 
 #  group_by(date) |> 
 #  summarise(Vacinas= sum(`D1 aplicadas`,`D2 aplicadas`,`DU aplicadas`,`D3 aplicadas`, na.rm=T))
 
@@ -323,11 +323,11 @@ column {data-width=500, .tabset}
 ### Casos diários
   
 ```{r}
-casosBrasil_final0$`Média móvel` <- round(casosBrasil_final0$MM_casos,0)
-casosBrasil_final0$`Casos novos` <- casosBrasil_final0$newCases
-casosBrasil_final0$Data <- casosBrasil_final0$date
+Brasil_Total$`Média móvel` <- round(Brasil_Total$MM_casos,0)
+Brasil_Total$`Casos novos` <- Brasil_Total$newCases
+Brasil_Total$Data <- Brasil_Total$date
 
-g1 <- casosBrasil_final0 |> ggplot(aes(x=Data, y=`Casos novos`))+ 
+g1 <- Brasil_Total |> ggplot(aes(x=Data, y=`Casos novos`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`Média móvel`),
@@ -358,10 +358,10 @@ ggplotly(g1) |>
 ### Óbitos diários
 
 ```{r}
-casosBrasil_final0$`Média móvel` <- round(casosBrasil_final0$MM_obitos,0)
-casosBrasil_final0$`Óbitos novos` <- casosBrasil_final0$newDeaths
+Brasil_Total$`Média móvel` <- round(Brasil_Total$MM_obitos,0)
+Brasil_Total$`Óbitos novos` <- Brasil_Total$newDeaths
 
-g2 <- casosBrasil_final0 |> ggplot(aes(x=Data, y=`Óbitos novos`))+ 
+g2 <- Brasil_Total |> ggplot(aes(x=Data, y=`Óbitos novos`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`Média móvel`),
@@ -392,10 +392,10 @@ ggplotly(g2) |>
 ### Ocupação diária de leitos clínicos
   
 ```{r}
-casosBrasil_final0$`Leitos clínicos ocupados` <- casosBrasil_final0$ocupacaoConfirmadoCli
-casosBrasil_final0$`média móvel` <- casosBrasil_final0$MM_ocup_Cli
+Brasil_Total$`Leitos clínicos ocupados` <- Brasil_Total$ocupacaoConfirmadoCli
+Brasil_Total$`média móvel` <- Brasil_Total$MM_ocup_Cli
 
-g7 <- casosBrasil_final0 |> ggplot(aes(x=Data, y=`Leitos clínicos ocupados`))+ 
+g7 <- Brasil_Total |> ggplot(aes(x=Data, y=`Leitos clínicos ocupados`))+ 
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`média móvel`),
@@ -426,10 +426,10 @@ ggplotly(g7) |>
 ### Ocupação diária de leitos de UTI
   
 ```{r}
-casosBrasil_final0$`Leitos UTI ocupados` <- casosBrasil_final0$ocupacaoConfirmadoUti
-casosBrasil_final0$`média móvel` <- casosBrasil_final0$MM_ocup_Uti
+Brasil_Total$`Leitos UTI ocupados` <- Brasil_Total$ocupacaoConfirmadoUti
+Brasil_Total$`média móvel` <- Brasil_Total$MM_ocup_Uti
 
-g8 <- casosBrasil_final0 |> ggplot(aes(x=Data, y=`Leitos UTI ocupados`))+
+g8 <- Brasil_Total |> ggplot(aes(x=Data, y=`Leitos UTI ocupados`))+
   geom_bar(stat="identity",
            fill="orange")+
   geom_line(aes(y=`média móvel`),
@@ -463,10 +463,10 @@ column {data-width=500, .tabset}
 ### Vacinação diária
 
 ```{r}
-casosBrasil_final0$`Primeira dose` <- casosBrasil_final0$`D1 aplicadas`
-casosBrasil_final0$`Segunda dose ou dose única` <- casosBrasil_final0$`D2 aplicadas`
+Brasil_Total$`Primeira dose` <- Brasil_Total$`D1 aplicadas`
+Brasil_Total$`Segunda dose ou dose única` <- Brasil_Total$`D2 aplicadas`
 
-g3 <- casosBrasil_final0 |> 
+g3 <- Brasil_Total |> 
   filter(date>="2021-01-17") |> 
   ggplot(aes(x=Data, y=`Primeira dose`))+ 
   geom_bar(stat="identity",
@@ -508,9 +508,9 @@ ggplotly(g3) |>
 ### Vacinação diária da 1ª dose
 
 ```{r}
-casosBrasil_final0$`Vacinas aplicadas` <- casosBrasil_final0$`D1 aplicadas`
+Brasil_Total$`Vacinas aplicadas` <- Brasil_Total$`D1 aplicadas`
 
-g4 <- casosBrasil_final0 |> 
+g4 <- Brasil_Total |> 
   filter(date>="2021-01-17") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -542,9 +542,9 @@ ggplotly(g4) |>
 ### Vacinação diária da 2ª dose ou Dose Única
 
 ```{r}
-casosBrasil_final0$`Vacinas aplicadas` <- casosBrasil_final0$`D2 aplicadas`
+Brasil_Total$`Vacinas aplicadas` <- Brasil_Total$`D2 aplicadas`
 
-g5 <- casosBrasil_final0 |>   
+g5 <- Brasil_Total |>   
   filter(date>="2021-01-17") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -576,9 +576,9 @@ ggplotly(g5) |>
 ### Vacinação diária da 3ª dose
 
 ```{r}
-casosBrasil_final0$`Vacinas aplicadas` <- casosBrasil_final0$`D3 aplicadas`
+Brasil_Total$`Vacinas aplicadas` <- Brasil_Total$`D3 aplicadas`
 
-g20 <- casosBrasil_final0 |>   
+g20 <- Brasil_Total |>   
   filter(date>="2021-01-17") |> 
   ggplot(aes(x=Data, y=`Vacinas aplicadas`))+ 
   geom_bar(stat="identity",
@@ -717,34 +717,34 @@ column {data-width=200}
 
 #pop dos Estados do Brasil 2021 (na coluna Valor)
 #pop_brasil = get_sidra(api="/t/6579/n1/all/v/all/p/last%201")
-#casosBrasil_final0$populacao= 213317639
+#Brasil_Total$populacao= 213317639
 
 
 #Acumulado das vacinas aplicadas
-casosBrasil_final0= casosBrasil_final0 |> 
+Brasil_Total= Brasil_Total |> 
   filter(date>= "2021-01-01")
-casosBrasil_final0$`D1 aplicadas`= as.character(casosBrasil_final0$`D1 aplicadas`)
-for (i in 1:length(casosBrasil_final0$`D1 aplicadas`)){
-  if(is.na(casosBrasil_final0$`D1 aplicadas`[i]==T)) casosBrasil_final0$`D1 aplicadas`[i]="Nao informado"
+Brasil_Total$`D1 aplicadas`= as.character(Brasil_Total$`D1 aplicadas`)
+for (i in 1:length(Brasil_Total$`D1 aplicadas`)){
+  if(is.na(Brasil_Total$`D1 aplicadas`[i]==T)) Brasil_Total$`D1 aplicadas`[i]="Nao informado"
 }
-casosBrasil_final0= dplyr::filter(casosBrasil_final0, D1!="Nao informado")
-casosBrasil_final0$`D1 aplicadas`= as.numeric(casosBrasil_final0$`D1 aplicadas`)
+Brasil_Total= dplyr::filter(Brasil_Total, D1!="Nao informado")
+Brasil_Total$`D1 aplicadas`= as.numeric(Brasil_Total$`D1 aplicadas`)
 
-casosBrasil_final0$D1_AC= cumsum(casosBrasil_final0$`D1 aplicadas`)
-casosBrasil_final0$D2_AC= cumsum(casosBrasil_final0$`D2 aplicadas`)
-casosBrasil_final0$D3_AC= cumsum(casosBrasil_final0$`D3 aplicadas`)
+Brasil_Total$D1_AC= cumsum(Brasil_Total$`D1 aplicadas`)
+Brasil_Total$D2_AC= cumsum(Brasil_Total$`D2 aplicadas`)
+Brasil_Total$D3_AC= cumsum(Brasil_Total$`D3 aplicadas`)
 
-casosBrasil_final0$D2_AC= as.character(casosBrasil_final0$D2_AC)
-for (i in 1:length(casosBrasil_final0$D2_AC)){
-  if((casosBrasil_final0$date[i]<"2021-01-17")) casosBrasil_final0$D2_AC[i]=NA
+Brasil_Total$D2_AC= as.character(Brasil_Total$D2_AC)
+for (i in 1:length(Brasil_Total$D2_AC)){
+  if((Brasil_Total$date[i]<"2021-01-17")) Brasil_Total$D2_AC[i]=NA
 }
-casosBrasil_final0$D2_AC= as.numeric(casosBrasil_final0$D2_AC)
+Brasil_Total$D2_AC= as.numeric(Brasil_Total$D2_AC)
 
-casosBrasil_final0$D3_AC= as.character(casosBrasil_final0$D3_AC)
-for (i in 1:length(casosBrasil_final0$D3_AC)){
-  if((casosBrasil_final0$date[i]<"2021-08-03")) casosBrasil_final0$D3_AC[i]=NA
+Brasil_Total$D3_AC= as.character(Brasil_Total$D3_AC)
+for (i in 1:length(Brasil_Total$D3_AC)){
+  if((Brasil_Total$date[i]<"2021-08-03")) Brasil_Total$D3_AC[i]=NA
 }
-casosBrasil_final0$D3_AC= as.numeric(casosBrasil_final0$D3_AC)
+Brasil_Total$D3_AC= as.numeric(Brasil_Total$D3_AC)
 
 
 #Brasil_map <- get_brmap(geo = "state",
@@ -752,7 +752,7 @@ casosBrasil_final0$D3_AC= as.numeric(casosBrasil_final0$D3_AC)
 #                    class = "sf")
 #Brasil_map = filter(Brasil_map, nome=="Brasil")
 
-#BaseBrasil_aux = casosBrasil_final0
+#BaseBrasil_aux = Brasil_Total
 #BaseBrasil_aux$state = sub(pattern = "/Brasil", replacement = "", x = BaseBrasil_aux$state)
 #BaseBrasil_aux$state = str_to_upper(BaseBrasil_aux$state)
 #aux_inconsistencia = str_to_upper(aux_inconsistencia)
@@ -761,7 +761,7 @@ casosBrasil_final0$D3_AC= as.numeric(casosBrasil_final0$D3_AC)
 
 
 # Criando AS TAXAS
-Brasil = casosBrasil_final0
+Brasil = Brasil_Total
 Brasil = Brasil |> 
   filter(date== max(date)) |> 
   mutate(taxaD1= round(D1_AC/populacao, 2),
@@ -802,11 +802,11 @@ column {data-width=800}
 ### Vacinação acumulada por tipo de dose
 
 ```{r }
-casosBrasil_final0$`Aplicações primeira dose` <- casosBrasil_final0$D1_AC
-casosBrasil_final0$`Aplicações segunda dose ou dose única` <- casosBrasil_final0$D2_AC
-casosBrasil_final0$`Aplicações terceira dose` <- casosBrasil_final0$D3_AC
+Brasil_Total$`Aplicações primeira dose` <- Brasil_Total$D1_AC
+Brasil_Total$`Aplicações segunda dose ou dose única` <- Brasil_Total$D2_AC
+Brasil_Total$`Aplicações terceira dose` <- Brasil_Total$D3_AC
 
-g6 <- casosBrasil_final0 |> 
+g6 <- Brasil_Total |> 
   ggplot(aes(x=Data, y=`Aplicações primeira dose`, fill = "Primeira dose"))+ 
   geom_line(col= "red")+
   geom_line(aes(y= `Aplicações segunda dose ou dose única`, fill = "Segunda dose ou dose única"),
@@ -1358,8 +1358,8 @@ g5
 
 
 ```{r fig.align='center', echo=FALSE, message=FALSE, warning=FALSE, fig.width = 10}
-#load("casosBrasil_final2.rdata")
-casosBrasil_final2= casosBrasil_final |>
+#load("Brasil_UF.rdata")
+Brasil_UF= casosBrasil_final |>
   mutate(D2 = D2+ DU) |> 
   select(Data, Estados, D1, D2, D3) 
 
@@ -1386,7 +1386,7 @@ bra2_map$Estados= factor(bra2_map$nome, levels= c("Rondônia", "Acre", "Amazonas
 
 bra2_map$Estados= as.character(bra2_map$Estados)
 
-BaseBrasil_aux = casosBrasil_final2
+BaseBrasil_aux = Brasil_UF
 #BaseBrasil_aux$Estados = str_to_upper(BaseBrasil_aux$Estados)
 #aux_inconsistencia = str_to_upper(aux_inconsistencia)
 bra2 = left_join(bra2_map, BaseBrasil_aux, by = c("Estados"))
@@ -1457,7 +1457,7 @@ tm_shape(bra2) +
               textNA = "Valor Faltante",
               set.view = 6, legend.show = T)  +
   tm_view(alpha = 1, view.legend.position = c("left","bottom")) +
-  tm_add_legend(labels = "Clique em um município para mais informações!", col = "white")
+  tm_add_legend(labels = "Clique em uma UF para mais informações!", col = "white")
 
 ```
 
@@ -1517,7 +1517,7 @@ tm_shape(bra2) +
               textNA = "Valor Faltante",
               set.view = 6, legend.show = T)  +
   tm_view(alpha = 1, view.legend.position = c("left","bottom")) +
-  tm_add_legend(labels = "Clique em um município para mais informações!", col = "white")
+  tm_add_legend(labels = "Clique em uma UF para mais informações!", col = "white")
 
 ```
 
@@ -1577,7 +1577,7 @@ tm_shape(bra2) +
               textNA = "Valor Faltante",
               set.view = 6, legend.show = T)  +
   tm_view(alpha = 1, view.legend.position = c("left","bottom")) +
-  tm_add_legend(labels = "Clique em um município para mais informações!", col = "white")
+  tm_add_legend(labels = "Clique em uma UF para mais informações!", col = "white")
 
 ```
 
